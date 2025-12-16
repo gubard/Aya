@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Aya.Contract/Aya.Contract.csproj" />
+  <Project Path="Aya/Aya.csproj" />
+</Solution>
