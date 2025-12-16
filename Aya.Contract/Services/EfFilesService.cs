@@ -53,6 +53,7 @@ public class EfFilesService
         var userId = _gaiaValues.UserId.ToString();
         var creates = request.CreateFiles.Select(x => x.ToFileEntity()).ToArray();
         await FileEntity.AddEntitiesAsync(DbContext, userId, ct, creates);
+        await FileEntity.DeleteEntitiesAsync(DbContext, userId, ct, request.DeleteIds);
         await DbContext.SaveChangesAsync(ct);
 
         return new();
@@ -63,6 +64,7 @@ public class EfFilesService
         var userId = _gaiaValues.UserId.ToString();
         var creates = request.CreateFiles.Select(x => x.ToFileEntity()).ToArray();
         FileEntity.AddEntities(DbContext, userId, creates);
+        FileEntity.DeleteEntities(DbContext, userId, request.DeleteIds);
         DbContext.SaveChanges();
 
         return new();

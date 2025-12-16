@@ -2,6 +2,6 @@
 
 public enum FileType
 {
-    Ftp,
     Local,
+    Ftp,
 }
