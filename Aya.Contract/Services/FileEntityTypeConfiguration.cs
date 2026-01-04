@@ -11,6 +11,7 @@ public sealed class FileEntityTypeConfiguration : IEntityTypeConfiguration<FileE
         builder.HasKey(e => e.Id);
         builder.Property(e => e.Host).HasMaxLength(1000);
         builder.Property(e => e.Login).HasMaxLength(255);
+        builder.Property(e => e.Name).HasMaxLength(255);
         builder.Property(e => e.Password).HasMaxLength(512);
         builder.Property(e => e.Path).HasMaxLength(1000);
     }
