@@ -1,4 +1,5 @@
-﻿using Aya.Contract.Helpers;
+﻿using System.Runtime.CompilerServices;
+using Aya.Contract.Helpers;
 using Aya.Contract.Models;
 using Gaia.Models;
 using Gaia.Services;
@@ -27,10 +28,15 @@ public class EfFilesService
         _gaiaValues = gaiaValues;
     }
 
-    public override async ValueTask<AyaGetResponse> GetAsync(
+    public override ConfiguredValueTaskAwaitable<AyaGetResponse> GetAsync(
         AyaGetRequest request,
         CancellationToken ct
     )
+    {
+        return GetCore(request, ct).ConfigureAwait(false);
+    }
+
+    private async ValueTask<AyaGetResponse> GetCore(AyaGetRequest request, CancellationToken ct)
     {
         var response = new AyaGetResponse();
         var files = await FileEntity.GetEntitiesAsync(DbContext.Events, ct);
@@ -43,10 +49,15 @@ public class EfFilesService
         return response;
     }
 
-    public override async ValueTask<AyaPostResponse> PostAsync(
+    public override ConfiguredValueTaskAwaitable<AyaPostResponse> PostAsync(
         AyaPostRequest request,
         CancellationToken ct
     )
+    {
+        return PostCore(request, ct).ConfigureAwait(false);
+    }
+
+    private async ValueTask<AyaPostResponse> PostCore(AyaPostRequest request, CancellationToken ct)
     {
         var userId = _gaiaValues.UserId.ToString();
         var creates = request.CreateFiles.Select(x => x.ToFileEntity()).ToArray();
