@@ -1,5 +1,6 @@
 using Aya.Contract.Models;
 using Aya.Contract.Services;
+using Aya.Services;
 using Zeus.Helpers;
 
 await WebApplication
@@ -10,5 +11,6 @@ await WebApplication
         AyaGetRequest,
         AyaPostRequest,
         AyaGetResponse,
-        AyaPostResponse
+        AyaPostResponse,
+        AyaDbContext
     >("Aya");
