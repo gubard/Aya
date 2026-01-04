@@ -2,8 +2,6 @@
 using Aya.Contract.Models;
 using Gaia.Models;
 using Gaia.Services;
-using Microsoft.EntityFrameworkCore;
-using Nestor.Db.Models;
 using Nestor.Db.Services;
 
 namespace Aya.Contract.Services;
@@ -23,7 +21,7 @@ public class EfFilesService
 {
     private readonly GaiaValues _gaiaValues;
 
-    public EfFilesService(DbContext dbContext, GaiaValues gaiaValues)
+    public EfFilesService(NestorDbContext dbContext, GaiaValues gaiaValues)
         : base(dbContext)
     {
         _gaiaValues = gaiaValues;
@@ -35,7 +33,7 @@ public class EfFilesService
     )
     {
         var response = new AyaGetResponse();
-        var files = await FileEntity.GetEntitiesAsync(DbContext.Set<EventEntity>(), ct);
+        var files = await FileEntity.GetEntitiesAsync(DbContext.Events, ct);
 
         if (request.IsGetFiles)
         {
@@ -73,7 +71,7 @@ public class EfFilesService
     public override AyaGetResponse Get(AyaGetRequest request)
     {
         var response = new AyaGetResponse();
-        var files = FileEntity.GetEntities(DbContext.Set<EventEntity>());
+        var files = FileEntity.GetEntities(DbContext.Events);
 
         if (request.IsGetFiles)
         {

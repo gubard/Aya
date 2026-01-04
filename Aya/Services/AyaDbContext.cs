@@ -7,7 +7,9 @@ using Nestor.Db.Services;
 
 namespace Aya.Services;
 
-public sealed class AyaDbContext : NestorDbContext, IStaticFactory<DbContextOptions, DbContext>
+public sealed class AyaDbContext
+    : NestorDbContext,
+        IStaticFactory<DbContextOptions, NestorDbContext>
 {
     public AyaDbContext() { }
 
@@ -28,7 +30,7 @@ public sealed class AyaDbContext : NestorDbContext, IStaticFactory<DbContextOpti
         base.OnModelCreating(modelBuilder);
     }
 
-    public static DbContext Create(DbContextOptions input)
+    public static NestorDbContext Create(DbContextOptions input)
     {
         return new AyaDbContext(input);
     }
