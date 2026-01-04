@@ -1,4 +1,5 @@
-﻿using Aya.Contract.Services;
+﻿using Aya.Contract.Models;
+using Aya.Contract.Services;
 using Gaia.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
@@ -12,6 +13,8 @@ public sealed class AyaDbContext : NestorDbContext, IStaticFactory<DbContextOpti
 
     public AyaDbContext(DbContextOptions options)
         : base(options) { }
+
+    public DbSet<FileEntity> Files { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
