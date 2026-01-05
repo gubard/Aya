@@ -1,4 +1,5 @@
-﻿using Aya.Contract.Models;
+﻿using Aya.CompiledModels;
+using Aya.Contract.Models;
 using Aya.Contract.Services;
 using Gaia.Services;
 using Microsoft.EntityFrameworkCore;

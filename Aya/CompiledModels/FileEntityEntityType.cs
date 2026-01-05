@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace Aya
+namespace Aya.CompiledModels
 {
     [EntityFrameworkInternal]
     public partial class FileEntityEntityType
@@ -49,7 +49,8 @@ namespace Aya
                 "Name",
                 typeof(string),
                 propertyInfo: typeof(FileEntity).GetProperty("Name", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(FileEntity).GetField("<Name>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(FileEntity).GetField("<Name>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                maxLength: 255);
 
             var password = runtimeEntityType.AddProperty(
                 "Password",
@@ -84,7 +85,7 @@ namespace Aya
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
             runtimeEntityType.AddAnnotation("Relational:Schema", null);
             runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);
-            runtimeEntityType.AddAnnotation("Relational:TableName", "FileEntity");
+            runtimeEntityType.AddAnnotation("Relational:TableName", "Files");
             runtimeEntityType.AddAnnotation("Relational:ViewName", null);
             runtimeEntityType.AddAnnotation("Relational:ViewSchema", null);
 

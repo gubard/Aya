@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace Aya
+namespace Aya.CompiledModels
 {
     [DbContext(typeof(AyaDbContext))]
     public partial class AyaDbContextModel : RuntimeModel

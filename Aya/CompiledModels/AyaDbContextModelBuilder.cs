@@ -6,12 +6,12 @@ using Microsoft.EntityFrameworkCore.Metadata;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace Aya
+namespace Aya.CompiledModels
 {
     public partial class AyaDbContextModel
     {
         private AyaDbContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("64d1b245-d688-4d8c-b009-c6c08bd39a8f"), entityTypeCount: 3)
+            : base(skipDetectChanges: false, modelId: new Guid("e6139e18-f8fa-4728-baab-530086c9e98b"), entityTypeCount: 3)
         {
         }
 

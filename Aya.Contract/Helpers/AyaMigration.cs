@@ -4,16 +4,16 @@ namespace Aya.Contract.Helpers;
 
 public static class AyaMigration
 {
-    public static readonly FrozenDictionary<long, string> Migrations;
+    public static readonly FrozenDictionary<int, string> Migrations;
 
     static AyaMigration()
     {
-        Migrations = new Dictionary<long, string>
+        Migrations = new Dictionary<int, string>
         {
             {
-                202601041204,
+                4,
                 @"
-CREATE TABLE IF NOT EXISTS FileEntity (
+CREATE TABLE IF NOT EXISTS Files (
     Id TEXT PRIMARY KEY NOT NULL,
     Name TEXT NOT NULL CHECK(length(Name) <= 255),
     Type INTEGER NOT NULL,
