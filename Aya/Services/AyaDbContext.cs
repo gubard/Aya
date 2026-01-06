@@ -10,7 +10,8 @@ namespace Aya.Services;
 
 public sealed class AyaDbContext
     : NestorDbContext,
-        IStaticFactory<DbContextOptions, NestorDbContext>
+        IStaticFactory<DbContextOptions, NestorDbContext>,
+        IFileDbContext
 {
     public AyaDbContext() { }
 

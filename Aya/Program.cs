@@ -22,7 +22,7 @@ await WebApplication
     .CreateBuilder(args)
     .CreateAndRunZeusApp<
         IFilesService,
-        EfFilesService,
+        EfFilesService<AyaDbContext>,
         AyaGetRequest,
         AyaPostRequest,
         AyaGetResponse,
