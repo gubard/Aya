@@ -1,5 +1,6 @@
 ﻿using Aya.CompiledModels;
 using Aya.Contract.Models;
+using Aya.Contract.Services;
 using Gaia.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
@@ -22,6 +23,12 @@ public sealed class AyaDbContext
     {
         base.OnConfiguring(optionsBuilder);
         optionsBuilder.UseModel(AyaDbContextModel.Instance);
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfiguration(new FileEntityTypeConfiguration());
     }
 
     public static NestorDbContext Create(DbContextOptions input)
