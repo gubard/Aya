@@ -41,7 +41,7 @@ namespace Aya.CompiledModels
                 sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
             id.SetGetter(
                 Guid (FileEntity instance) => FileEntityUnsafeAccessors.Id(instance),
-                bool (FileEntity instance) => ((object)FileEntityUnsafeAccessors.Id(instance)).Equals(((object)(new Guid("00000000-0000-0000-0000-000000000000")))));
+                bool (FileEntity instance) => FileEntityUnsafeAccessors.Id(instance) == new Guid("00000000-0000-0000-0000-000000000000"));
             id.SetSetter(
                 FileEntity (FileEntity instance, Guid value) =>
                 {
@@ -55,7 +55,7 @@ namespace Aya.CompiledModels
                     return instance;
                 });
             id.SetAccessors(
-                Guid (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<Guid>(0) : (entry.FlaggedAsTemporary(0) && ((object)FileEntityUnsafeAccessors.Id(((FileEntity)(entry.Entity)))).Equals(((object)(new Guid("00000000-0000-0000-0000-000000000000")))) ? entry.ReadTemporaryValue<Guid>(0) : FileEntityUnsafeAccessors.Id(((FileEntity)(entry.Entity))))),
+                Guid (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<Guid>(0) : (entry.FlaggedAsTemporary(0) && FileEntityUnsafeAccessors.Id(((FileEntity)(entry.Entity))) == new Guid("00000000-0000-0000-0000-000000000000") ? entry.ReadTemporaryValue<Guid>(0) : FileEntityUnsafeAccessors.Id(((FileEntity)(entry.Entity))))),
                 Guid (IInternalEntry entry) => FileEntityUnsafeAccessors.Id(((FileEntity)(entry.Entity))),
                 Guid (IInternalEntry entry) => entry.ReadOriginalValue<Guid>(id, 0),
                 Guid (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<Guid>(id, 0));
@@ -68,9 +68,9 @@ namespace Aya.CompiledModels
             id.TypeMapping = SqliteGuidTypeMapping.Default;
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(id));
             id.SetComparer(new ValueComparer<Guid>(
-                bool (Guid c1, Guid c2) => ((object)c1).Equals(((object)(c2))),
-                int (Guid c) => ((object)c).GetHashCode(),
-                Guid (Guid c) => c));
+                bool (Guid l, Guid r) => l == r,
+                int (Guid v) => ((object)v).GetHashCode(),
+                Guid (Guid v) => v));
 
             var host = runtimeEntityType.AddProperty(
                 "Host",

@@ -1,5 +1,6 @@
 ﻿using Aya.Contract.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Nestor.Db.Helpers;
 
@@ -10,7 +11,12 @@ public sealed class FileEntityTypeConfiguration : IEntityTypeConfiguration<FileE
     public void Configure(EntityTypeBuilder<FileEntity> builder)
     {
         builder.HasKey(e => e.Id);
-        builder.Property(e => e.Id).HasConversion<Guid>().SetComparerStruct();
+        builder
+            .Property(e => e.Id)
+            .HasConversion<Guid>()
+            .Metadata.SetValueComparer(
+                new ValueComparer<Guid>((l, r) => l == r, v => v.GetHashCode(), v => v)
+            );
         builder.Property(e => e.Host).HasMaxLength(1000).SetComparerClass();
         builder.Property(e => e.Login).HasMaxLength(255).SetComparerClass();
         builder.Property(e => e.Name).HasMaxLength(255).SetComparerClass();
