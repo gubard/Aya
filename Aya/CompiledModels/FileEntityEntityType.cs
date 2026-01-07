@@ -66,6 +66,10 @@ namespace Aya.CompiledModels
                 storeGenerationIndex: 0);
             id.TypeMapping = SqliteGuidTypeMapping.Default;
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(id));
+            id.SetComparer(new ValueComparer<Guid>(
+                bool (Guid c1, Guid c2) => c1 == c2,
+                int (Guid c) => ((object)c).GetHashCode(),
+                Guid (Guid c) => c));
 
             var host = runtimeEntityType.AddProperty(
                 "Host",
