@@ -35,12 +35,11 @@ namespace Aya.CompiledModels
                 typeof(Guid),
                 propertyInfo: typeof(FileEntity).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(FileEntity).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
             id.SetGetter(
                 Guid (FileEntity instance) => FileEntityUnsafeAccessors.Id(instance),
-                bool (FileEntity instance) => FileEntityUnsafeAccessors.Id(instance) == new Guid("00000000-0000-0000-0000-000000000000"));
+                bool (FileEntity instance) => ((object)FileEntityUnsafeAccessors.Id(instance)).Equals(((object)(new Guid("00000000-0000-0000-0000-000000000000")))));
             id.SetSetter(
                 FileEntity (FileEntity instance, Guid value) =>
                 {
@@ -54,7 +53,7 @@ namespace Aya.CompiledModels
                     return instance;
                 });
             id.SetAccessors(
-                Guid (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<Guid>(0) : (entry.FlaggedAsTemporary(0) && FileEntityUnsafeAccessors.Id(((FileEntity)(entry.Entity))) == new Guid("00000000-0000-0000-0000-000000000000") ? entry.ReadTemporaryValue<Guid>(0) : FileEntityUnsafeAccessors.Id(((FileEntity)(entry.Entity))))),
+                Guid (IInternalEntry entry) => FileEntityUnsafeAccessors.Id(((FileEntity)(entry.Entity))),
                 Guid (IInternalEntry entry) => FileEntityUnsafeAccessors.Id(((FileEntity)(entry.Entity))),
                 Guid (IInternalEntry entry) => entry.ReadOriginalValue<Guid>(id, 0),
                 Guid (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<Guid>(id, 0));
@@ -63,11 +62,11 @@ namespace Aya.CompiledModels
                 originalValueIndex: 0,
                 shadowIndex: -1,
                 relationshipIndex: 0,
-                storeGenerationIndex: 0);
+                storeGenerationIndex: -1);
             id.TypeMapping = SqliteGuidTypeMapping.Default;
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(id));
             id.SetComparer(new ValueComparer<Guid>(
-                bool (Guid c1, Guid c2) => c1 == c2,
+                bool (Guid c1, Guid c2) => ((object)c1).Equals(((object)(c2))),
                 int (Guid c) => ((object)c).GetHashCode(),
                 Guid (Guid c) => c));
 
@@ -104,6 +103,10 @@ namespace Aya.CompiledModels
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             host.TypeMapping = SqliteStringTypeMapping.Default;
+            host.SetComparer(new ValueComparer<string>(
+                bool (string c1, string c2) => c1 == c2,
+                int (string c) => ((object)c).GetHashCode(),
+                string (string c) => c));
 
             var login = runtimeEntityType.AddProperty(
                 "Login",
@@ -138,6 +141,10 @@ namespace Aya.CompiledModels
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             login.TypeMapping = SqliteStringTypeMapping.Default;
+            login.SetComparer(new ValueComparer<string>(
+                bool (string c1, string c2) => c1 == c2,
+                int (string c) => ((object)c).GetHashCode(),
+                string (string c) => c));
 
             var name = runtimeEntityType.AddProperty(
                 "Name",
@@ -172,6 +179,10 @@ namespace Aya.CompiledModels
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             name.TypeMapping = SqliteStringTypeMapping.Default;
+            name.SetComparer(new ValueComparer<string>(
+                bool (string c1, string c2) => c1 == c2,
+                int (string c) => ((object)c).GetHashCode(),
+                string (string c) => c));
 
             var password = runtimeEntityType.AddProperty(
                 "Password",
@@ -206,6 +217,10 @@ namespace Aya.CompiledModels
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             password.TypeMapping = SqliteStringTypeMapping.Default;
+            password.SetComparer(new ValueComparer<string>(
+                bool (string c1, string c2) => c1 == c2,
+                int (string c) => ((object)c).GetHashCode(),
+                string (string c) => c));
 
             var path = runtimeEntityType.AddProperty(
                 "Path",
@@ -240,15 +255,20 @@ namespace Aya.CompiledModels
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             path.TypeMapping = SqliteStringTypeMapping.Default;
+            path.SetComparer(new ValueComparer<string>(
+                bool (string c1, string c2) => c1 == c2,
+                int (string c) => ((object)c).GetHashCode(),
+                string (string c) => c));
 
             var type = runtimeEntityType.AddProperty(
                 "Type",
                 typeof(FileType),
                 propertyInfo: typeof(FileEntity).GetProperty("Type", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(FileEntity).GetField("<Type>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(FileEntity).GetField("<Type>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                maxLength: 1000);
             type.SetGetter(
                 FileType (FileEntity instance) => FileEntityUnsafeAccessors.Type(instance),
-                bool (FileEntity instance) => object.Equals(((object)(FileEntityUnsafeAccessors.Type(instance))), ((object)(FileType.Local))));
+                bool (FileEntity instance) => ((object)FileEntityUnsafeAccessors.Type(instance)).Equals(((object)(FileType.Local))));
             type.SetSetter(
                 FileEntity (FileEntity instance, FileType value) =>
                 {
@@ -295,6 +315,10 @@ namespace Aya.CompiledModels
                     new ValueConverter<FileType, int>(
                         int (FileType value) => ((int)(value)),
                         FileType (int value) => ((FileType)(value)))));
+            type.SetComparer(new ValueComparer<FileType>(
+                bool (FileType c1, FileType c2) => ((object)c1).Equals(((object)(c2))),
+                int (FileType c) => ((object)c).GetHashCode(),
+                FileType (FileType c) => c));
             type.SetSentinelFromProviderValue(0);
 
             var key = runtimeEntityType.AddKey(
@@ -323,9 +347,9 @@ namespace Aya.CompiledModels
                     return ((ISnapshot)(new Snapshot<Guid, string, string, string, string, string, FileType>(((ValueComparer<Guid>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(id)), (source.GetCurrentValue<string>(host) == null ? null : ((ValueComparer<string>)(((IProperty)host).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(host))), (source.GetCurrentValue<string>(login) == null ? null : ((ValueComparer<string>)(((IProperty)login).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(login))), (source.GetCurrentValue<string>(name) == null ? null : ((ValueComparer<string>)(((IProperty)name).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(name))), (source.GetCurrentValue<string>(password) == null ? null : ((ValueComparer<string>)(((IProperty)password).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(password))), (source.GetCurrentValue<string>(path) == null ? null : ((ValueComparer<string>)(((IProperty)path).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(path))), ((ValueComparer<FileType>)(((IProperty)type).GetValueComparer())).Snapshot(source.GetCurrentValue<FileType>(type)))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                ISnapshot () => ((ISnapshot)(new Snapshot<Guid>(((ValueComparer<Guid>)(((IProperty)id).GetValueComparer())).Snapshot(default(Guid))))));
+                ISnapshot () => Snapshot.Empty);
             runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<Guid>(default(Guid)))));
+                ISnapshot (IInternalEntry source) => Snapshot.Empty);
             runtimeEntityType.SetShadowValuesFactory(
                 ISnapshot (IDictionary<string, object> source) => Snapshot.Empty);
             runtimeEntityType.SetEmptyShadowValuesFactory(
@@ -344,7 +368,7 @@ namespace Aya.CompiledModels
                 originalValueCount: 7,
                 shadowCount: 0,
                 relationshipCount: 1,
-                storeGeneratedCount: 1));
+                storeGeneratedCount: 0));
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
             runtimeEntityType.AddAnnotation("Relational:Schema", null);
             runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);
