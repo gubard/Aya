@@ -37,6 +37,7 @@ namespace Aya.CompiledModels
                 fieldInfo: typeof(FileEntity).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
+                providerPropertyType: typeof(Guid),
                 sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
             id.SetGetter(
                 Guid (FileEntity instance) => FileEntityUnsafeAccessors.Id(instance),
