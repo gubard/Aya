@@ -15,7 +15,7 @@ namespace Aya.CompiledModels
     public partial class AyaDbContextModel
     {
         private AyaDbContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("e941c038-74c5-498d-961a-a97c1b7fdb99"), entityTypeCount: 3)
+            : base(skipDetectChanges: false, modelId: new Guid("1f0ff4c1-c8cf-4e6a-9412-f07b82d7ed45"), entityTypeCount: 3)
         {
         }
 
@@ -278,7 +278,7 @@ namespace Aya.CompiledModels
             idColumn0.Accessors = ColumnAccessorsFactory.CreateGeneric<long>(idColumn0);
             var createdAtColumn = new Column("CreatedAt", "TEXT", eventsTable);
             eventsTable.Columns.Add("CreatedAt", createdAtColumn);
-            createdAtColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<DateTime>(createdAtColumn);
+            createdAtColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<DateTimeOffset>(createdAtColumn);
             var entityBooleanValueColumn = new Column("EntityBooleanValue", "INTEGER", eventsTable)
             {
                 IsNullable = true
