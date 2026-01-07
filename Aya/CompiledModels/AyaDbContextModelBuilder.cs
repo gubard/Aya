@@ -15,7 +15,7 @@ namespace Aya.CompiledModels
     public partial class AyaDbContextModel
     {
         private AyaDbContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("be9c274e-0c08-48a9-93ac-570c71be4da6"), entityTypeCount: 3)
+            : base(skipDetectChanges: false, modelId: new Guid("dde11077-c587-462e-b759-15771c7cdc4b"), entityTypeCount: 3)
         {
         }
 
