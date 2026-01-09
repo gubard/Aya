@@ -1,10 +1,6 @@
-﻿using Aya.Contract.Services;
-using Nestor.Db.Models;
+﻿namespace Aya.Contract.Models;
 
-namespace Aya.Contract.Models;
-
-[SourceEntity(nameof(Id), typeof(IFileDbContext))]
-public partial class FileEntity
+public class FileEntity
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;

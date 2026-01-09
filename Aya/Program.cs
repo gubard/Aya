@@ -2,8 +2,7 @@ using System.Collections.Frozen;
 using Aya.Contract.Helpers;
 using Aya.Contract.Models;
 using Aya.Contract.Services;
-using Aya.Services;
-using Nestor.Db.Sqlite.Helpers;
+using Nestor.Db.Helpers;
 using Zeus.Helpers;
 
 var migration = new Dictionary<int, string>();
@@ -22,10 +21,9 @@ await WebApplication
     .CreateBuilder(args)
     .CreateAndRunZeusApp<
         IFilesService,
-        EfFilesService<AyaDbContext>,
+        DbFilesService,
         AyaGetRequest,
         AyaPostRequest,
         AyaGetResponse,
-        AyaPostResponse,
-        AyaDbContext
+        AyaPostResponse
     >(migration.ToFrozenDictionary(), "Aya");

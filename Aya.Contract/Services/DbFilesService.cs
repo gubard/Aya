@@ -3,7 +3,8 @@ using Aya.Contract.Helpers;
 using Aya.Contract.Models;
 using Gaia.Models;
 using Gaia.Services;
-using Microsoft.EntityFrameworkCore;
+using Nestor.Db.Helpers;
+using Nestor.Db.Models;
 using Nestor.Db.Services;
 
 namespace Aya.Contract.Services;
@@ -15,17 +16,16 @@ public interface IFilesService
 
 public interface IEfFilesService
     : IFilesService,
-        IEfService<AyaGetRequest, AyaPostRequest, AyaGetResponse, AyaPostResponse>;
+        IDbService<AyaGetRequest, AyaPostRequest, AyaGetResponse, AyaPostResponse>;
 
-public class EfFilesService<TDbContext>
-    : EfService<AyaGetRequest, AyaPostRequest, AyaGetResponse, AyaPostResponse, TDbContext>,
+public class DbFilesService
+    : DbService<AyaGetRequest, AyaPostRequest, AyaGetResponse, AyaPostResponse>,
         IEfFilesService
-    where TDbContext : NestorDbContext, IFileDbContext
 {
     private readonly GaiaValues _gaiaValues;
 
-    public EfFilesService(TDbContext dbContext, GaiaValues gaiaValues)
-        : base(dbContext)
+    public DbFilesService(IDbConnectionFactory factory, GaiaValues gaiaValues)
+        : base(factory)
     {
         _gaiaValues = gaiaValues;
     }
@@ -41,11 +41,12 @@ public class EfFilesService<TDbContext>
     private async ValueTask<AyaGetResponse> GetCore(AyaGetRequest request, CancellationToken ct)
     {
         var response = new AyaGetResponse();
-        var files = await DbContext.Files.ToArrayAsync(ct);
+        await using var session = await Factory.CreateSessionAsync(ct);
 
         if (request.IsGetFiles)
         {
-            response.Files = files.Select(x => x.ToFile()).ToArray();
+            await using var reader = await session.ExecuteReaderAsync(FilesExt.SelectQuery, ct);
+            response.Files = reader.ReadFiles().Select(x => x.ToFile()).ToArray();
         }
 
         return response;
@@ -68,17 +69,9 @@ public class EfFilesService<TDbContext>
     {
         var userId = _gaiaValues.UserId.ToString();
         var creates = request.CreateFiles.Select(x => x.ToFileEntity()).ToArray();
-        await FileEntity.AddEntitiesAsync(DbContext, userId, idempotentId, creates, ct);
-
-        await FileEntity.DeleteEntitiesAsync(
-            DbContext,
-            userId,
-            idempotentId,
-            request.DeleteIds,
-            ct
-        );
-
-        await DbContext.SaveChangesAsync(ct);
+        await using var session = await Factory.CreateSessionAsync(ct);
+        await session.AddEntitiesAsync(userId, idempotentId, creates, ct);
+        await session.CommitAsync(ct);
 
         return new();
     }
@@ -87,9 +80,9 @@ public class EfFilesService<TDbContext>
     {
         var userId = _gaiaValues.UserId.ToString();
         var creates = request.CreateFiles.Select(x => x.ToFileEntity()).ToArray();
-        FileEntity.AddEntities(DbContext, userId, idempotentId, creates);
-        FileEntity.DeleteEntities(DbContext, userId, idempotentId, request.DeleteIds);
-        DbContext.SaveChanges();
+        using var session = Factory.CreateSession();
+        session.AddEntities(userId, idempotentId, creates);
+        session.Commit();
 
         return new();
     }
@@ -97,11 +90,12 @@ public class EfFilesService<TDbContext>
     public override AyaGetResponse Get(AyaGetRequest request)
     {
         var response = new AyaGetResponse();
-        var files = DbContext.Files.ToArray();
+        using var session = Factory.CreateSession();
 
         if (request.IsGetFiles)
         {
-            response.Files = files.Select(x => x.ToFile()).ToArray();
+            using var reader = session.ExecuteReader(FilesExt.SelectQuery);
+            response.Files = reader.ReadFiles().Select(x => x.ToFile()).ToArray();
         }
 
         return response;
