@@ -1,4 +1,4 @@
-﻿using Gaia.Services;
+﻿using Nestor.Db.Models;
 
 namespace Aya.Contract.Models;
 
@@ -7,4 +7,5 @@ public class AyaPostRequest : IPostRequest
     public File[] CreateFiles { get; set; } = [];
     public Guid[] DeleteIds { get; set; } = [];
     public long LastLocalId { get; set; }
+    public EventEntity[] Events { get; set; } = [];
 }

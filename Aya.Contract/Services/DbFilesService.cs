@@ -60,7 +60,7 @@ public class DbFilesService
         return response;
     }
 
-    public override ConfiguredValueTaskAwaitable<AyaPostResponse> PostAsync(
+    protected override ConfiguredValueTaskAwaitable<AyaPostResponse> ExecuteAsync(
         Guid idempotentId,
         AyaPostRequest request,
         CancellationToken ct
@@ -85,7 +85,7 @@ public class DbFilesService
         return new();
     }
 
-    public override AyaPostResponse Post(Guid idempotentId, AyaPostRequest request)
+    protected override AyaPostResponse Execute(Guid idempotentId, AyaPostRequest request)
     {
         var userId = _gaiaValues.UserId.ToString();
         var creates = request.CreateFiles.Select(x => x.ToFileEntity()).ToArray();
