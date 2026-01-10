@@ -9,7 +9,9 @@ using Nestor.Db.Services;
 
 namespace Aya.Contract.Services;
 
-public interface IHttpFilesService : IFilesService;
+public interface IHttpFilesService
+    : IFilesService,
+        IHttpService<AyaGetRequest, AyaPostRequest, AyaGetResponse, AyaPostResponse>;
 
 public interface IFilesService
     : IService<AyaGetRequest, AyaPostRequest, AyaGetResponse, AyaPostResponse>;
@@ -23,11 +25,17 @@ public class DbFilesService
         IEfFilesService
 {
     private readonly GaiaValues _gaiaValues;
+    private readonly IFactory<DbServiceOptions> _factoryOptions;
 
-    public DbFilesService(IDbConnectionFactory factory, GaiaValues gaiaValues)
+    public DbFilesService(
+        IDbConnectionFactory factory,
+        GaiaValues gaiaValues,
+        IFactory<DbServiceOptions> factoryOptions
+    )
         : base(factory)
     {
         _gaiaValues = gaiaValues;
+        _factoryOptions = factoryOptions;
     }
 
     public override ConfiguredValueTaskAwaitable<AyaGetResponse> GetAsync(
@@ -70,7 +78,8 @@ public class DbFilesService
         var userId = _gaiaValues.UserId.ToString();
         var creates = request.CreateFiles.Select(x => x.ToFileEntity()).ToArray();
         await using var session = await Factory.CreateSessionAsync(ct);
-        await session.AddEntitiesAsync(userId, idempotentId, creates, ct);
+        var isUseEvents = _factoryOptions.Create().IsUseEvents;
+        await session.AddEntitiesAsync(userId, idempotentId, isUseEvents, creates, ct);
         await session.CommitAsync(ct);
 
         return new();
@@ -81,7 +90,8 @@ public class DbFilesService
         var userId = _gaiaValues.UserId.ToString();
         var creates = request.CreateFiles.Select(x => x.ToFileEntity()).ToArray();
         using var session = Factory.CreateSession();
-        session.AddEntities(userId, idempotentId, creates);
+        var isUseEvents = _factoryOptions.Create().IsUseEvents;
+        session.AddEntities(userId, idempotentId, isUseEvents, creates);
         session.Commit();
 
         return new();
