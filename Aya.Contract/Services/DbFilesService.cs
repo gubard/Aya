@@ -88,32 +88,6 @@ public class DbFilesService
         return new();
     }
 
-    protected override AyaPostResponse Execute(Guid idempotentId, AyaPostRequest request)
-    {
-        var userId = _gaiaValues.UserId.ToString();
-        var creates = request.CreateFiles.Select(x => x.ToFileEntity()).ToArray();
-        using var session = Factory.CreateSession();
-        var isUseEvents = _factoryOptions.Create().IsUseEvents;
-        session.AddEntities(userId, idempotentId, isUseEvents, creates);
-        session.Commit();
-
-        return new();
-    }
-
-    public override AyaGetResponse Get(AyaGetRequest request)
-    {
-        var response = new AyaGetResponse();
-        using var session = Factory.CreateSession();
-
-        if (request.IsGetFiles)
-        {
-            using var reader = session.ExecuteReader(FilesExt.SelectQuery);
-            response.Files = reader.ReadFiles().Select(x => x.ToFile()).ToArray();
-        }
-
-        return response;
-    }
-
     public ConfiguredValueTaskAwaitable UpdateAsync(AyaPostRequest source, CancellationToken ct)
     {
         return UpdateCore(source, ct).ConfigureAwait(false);
@@ -128,15 +102,6 @@ public class DbFilesService
         await session.CommitAsync(ct);
     }
 
-    public void Update(AyaPostRequest source)
-    {
-        var userId = _gaiaValues.UserId.ToString();
-        var creates = source.CreateFiles.Select(x => x.ToFileEntity()).ToArray();
-        using var session = Factory.CreateSession();
-        session.AddEntities(userId, Guid.NewGuid(), false, creates);
-        session.Commit();
-    }
-
     public ConfiguredValueTaskAwaitable UpdateAsync(AyaGetResponse source, CancellationToken ct)
     {
         return UpdateCore(source, ct).ConfigureAwait(false);
@@ -146,11 +111,20 @@ public class DbFilesService
     {
         await using var session = await Factory.CreateSessionAsync(ct);
         var entities = source.Files.Select(x => x.ToFileEntity()).ToArray();
+        var ids = entities.Select(x => x.Id).ToArray();
 
         if (entities.Length == 0)
         {
             return;
         }
+
+        var deleteIds = await session.GetGuidAsync(
+            new(
+                FilesExt.SelectIdsQuery + $" WHERE Id NOT IN ({ids.ToParameterNames("Id")})",
+                ids.ToSqliteParameters("Id")
+            ),
+            ct
+        );
 
         var exists = await session.IsExistsAsync(entities, ct);
 
@@ -171,38 +145,11 @@ public class DbFilesService
             await session.ExecuteNonQueryAsync(query, ct);
         }
 
+        if (deleteIds.Length != 0)
+        {
+            await session.ExecuteNonQueryAsync(deleteIds.CreateDeleteFilesQuery(), ct);
+        }
+
         await session.CommitAsync(ct);
-    }
-
-    public void Update(AyaGetResponse source)
-    {
-        using var session = Factory.CreateSession();
-        var entities = source.Files.Select(x => x.ToFileEntity()).ToArray();
-
-        if (entities.Length == 0)
-        {
-            return;
-        }
-
-        var exists = session.IsExists(entities);
-
-        var updateQueries = entities
-            .Where(x => exists.Contains(x.Id))
-            .Select(x => x.CreateUpdateFilesQuery())
-            .ToArray();
-
-        var inserts = entities.Where(x => !exists.Contains(x.Id)).ToArray();
-
-        if (inserts.Length != 0)
-        {
-            session.ExecuteNonQuery(inserts.CreateInsertQuery());
-        }
-
-        foreach (var query in updateQueries)
-        {
-            session.ExecuteNonQuery(query);
-        }
-
-        session.Commit();
     }
 }
