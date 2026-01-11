@@ -16,13 +16,16 @@ public interface IHttpFilesService
 public interface IFilesService
     : IService<AyaGetRequest, AyaPostRequest, AyaGetResponse, AyaPostResponse>;
 
-public interface IEfFilesService
+public interface IDbFilesService
     : IFilesService,
         IDbService<AyaGetRequest, AyaPostRequest, AyaGetResponse, AyaPostResponse>;
 
+public interface IFilesDbCache : IDbCache<AyaPostRequest, AyaGetResponse>;
+
 public class DbFilesService
     : DbService<AyaGetRequest, AyaPostRequest, AyaGetResponse, AyaPostResponse>,
-        IEfFilesService
+        IDbFilesService,
+        IFilesDbCache
 {
     private readonly GaiaValues _gaiaValues;
     private readonly IFactory<DbServiceOptions> _factoryOptions;
@@ -109,5 +112,97 @@ public class DbFilesService
         }
 
         return response;
+    }
+
+    public ConfiguredValueTaskAwaitable UpdateAsync(AyaPostRequest source, CancellationToken ct)
+    {
+        return UpdateCore(source, ct).ConfigureAwait(false);
+    }
+
+    public async ValueTask UpdateCore(AyaPostRequest source, CancellationToken ct)
+    {
+        var userId = _gaiaValues.UserId.ToString();
+        var creates = source.CreateFiles.Select(x => x.ToFileEntity()).ToArray();
+        await using var session = await Factory.CreateSessionAsync(ct);
+        await session.AddEntitiesAsync(userId, Guid.NewGuid(), false, creates, ct);
+        await session.CommitAsync(ct);
+    }
+
+    public void Update(AyaPostRequest source)
+    {
+        var userId = _gaiaValues.UserId.ToString();
+        var creates = source.CreateFiles.Select(x => x.ToFileEntity()).ToArray();
+        using var session = Factory.CreateSession();
+        session.AddEntities(userId, Guid.NewGuid(), false, creates);
+        session.Commit();
+    }
+
+    public ConfiguredValueTaskAwaitable UpdateAsync(AyaGetResponse source, CancellationToken ct)
+    {
+        return UpdateCore(source, ct).ConfigureAwait(false);
+    }
+
+    public async ValueTask UpdateCore(AyaGetResponse source, CancellationToken ct)
+    {
+        await using var session = await Factory.CreateSessionAsync(ct);
+        var entities = source.Files.Select(x => x.ToFileEntity()).ToArray();
+
+        if (entities.Length == 0)
+        {
+            return;
+        }
+
+        var exists = await session.IsExistsAsync(entities, ct);
+
+        var updateQueries = entities
+            .Where(x => exists.Contains(x.Id))
+            .Select(x => x.CreateUpdateFilesQuery())
+            .ToArray();
+
+        var inserts = entities.Where(x => !exists.Contains(x.Id)).ToArray();
+
+        if (inserts.Length != 0)
+        {
+            await session.ExecuteNonQueryAsync(inserts.CreateInsertQuery(), ct);
+        }
+
+        foreach (var query in updateQueries)
+        {
+            await session.ExecuteNonQueryAsync(query, ct);
+        }
+
+        await session.CommitAsync(ct);
+    }
+
+    public void Update(AyaGetResponse source)
+    {
+        using var session = Factory.CreateSession();
+        var entities = source.Files.Select(x => x.ToFileEntity()).ToArray();
+
+        if (entities.Length == 0)
+        {
+            return;
+        }
+
+        var exists = session.IsExists(entities);
+
+        var updateQueries = entities
+            .Where(x => exists.Contains(x.Id))
+            .Select(x => x.CreateUpdateFilesQuery())
+            .ToArray();
+
+        var inserts = entities.Where(x => !exists.Contains(x.Id)).ToArray();
+
+        if (inserts.Length != 0)
+        {
+            session.ExecuteNonQuery(inserts.CreateInsertQuery());
+        }
+
+        foreach (var query in updateQueries)
+        {
+            session.ExecuteNonQuery(query);
+        }
+
+        session.Commit();
     }
 }

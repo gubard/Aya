@@ -20,7 +20,9 @@ CREATE TABLE IF NOT EXISTS Files (
     Path TEXT NOT NULL CHECK(length(Path) <= 1000),
     Password TEXT NOT NULL CHECK(length(Password) <= 512),
     Login TEXT NOT NULL CHECK(length(Login) <= 255),
-    Host TEXT NOT NULL CHECK(length(Host) <= 1000)
+    Host TEXT NOT NULL CHECK(length(Host) <= 1000),
+    Icon TEXT NOT NULL CHECK(length(Icon) <= 255),
+    Color TEXT NOT NULL CHECK(length(Color) <= 255)
 );
 "
             },

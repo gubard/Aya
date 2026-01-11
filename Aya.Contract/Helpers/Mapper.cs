@@ -16,6 +16,8 @@ public static class Mapper
             Login = entity.Login,
             Password = entity.Password,
             Path = entity.Path,
+            Color = entity.Color,
+            Icon = entity.Icon,
         };
     }
 
@@ -30,6 +32,8 @@ public static class Mapper
             Login = file.Login,
             Password = file.Password,
             Path = file.Path,
+            Color = file.Color,
+            Icon = file.Icon,
         };
     }
 }
