@@ -5,6 +5,11 @@ using Aya.Contract.Services;
 using Nestor.Db.Helpers;
 using Zeus.Helpers;
 
+InsertHelper.AddDefaultInsert(
+    nameof(FileEntity),
+    id => new FileEntity[] { new() { Id = id } }.CreateInsertQuery()
+);
+
 var migration = new Dictionary<int, string>();
 
 foreach (var (key, value) in SqliteMigration.Migrations)
