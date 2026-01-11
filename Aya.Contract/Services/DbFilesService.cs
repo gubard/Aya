@@ -65,15 +65,17 @@ public class DbFilesService
 
     protected override ConfiguredValueTaskAwaitable<AyaPostResponse> ExecuteAsync(
         Guid idempotentId,
+        AyaPostResponse response,
         AyaPostRequest request,
         CancellationToken ct
     )
     {
-        return PostCore(idempotentId, request, ct).ConfigureAwait(false);
+        return PostCore(idempotentId, response, request, ct).ConfigureAwait(false);
     }
 
     private async ValueTask<AyaPostResponse> PostCore(
         Guid idempotentId,
+        AyaPostResponse response,
         AyaPostRequest request,
         CancellationToken ct
     )
@@ -85,7 +87,7 @@ public class DbFilesService
         await session.AddEntitiesAsync(userId, idempotentId, isUseEvents, creates, ct);
         await session.CommitAsync(ct);
 
-        return new();
+        return response;
     }
 
     public ConfiguredValueTaskAwaitable UpdateAsync(AyaPostRequest source, CancellationToken ct)

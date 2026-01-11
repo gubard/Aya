@@ -4,8 +4,9 @@ using Nestor.Db.Models;
 
 namespace Aya.Contract.Models;
 
-public class AyaPostResponse : IValidationErrors, IResponse
+public class AyaPostResponse : IValidationErrors, IPostResponse
 {
     public List<ValidationError> ValidationErrors { get; } = [];
     public EventEntity[] Events { get; set; } = [];
+    public bool IsEventSaved { get; set; }
 }
