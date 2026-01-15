@@ -35,7 +35,7 @@ public class DbFilesService
         GaiaValues gaiaValues,
         IFactory<DbServiceOptions> factoryOptions
     )
-        : base(factory)
+        : base(factory, nameof(FileEntity))
     {
         _gaiaValues = gaiaValues;
         _factoryOptions = factoryOptions;
