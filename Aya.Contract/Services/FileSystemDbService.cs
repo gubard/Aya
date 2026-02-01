@@ -9,28 +9,28 @@ using Nestor.Db.Services;
 
 namespace Aya.Contract.Services;
 
-public interface IFilesHttpService
-    : IFilesService,
+public interface IFileSystemHttpService
+    : IFileSystemService,
         IHttpService<AyaGetRequest, AyaPostRequest, AyaGetResponse, AyaPostResponse>;
 
-public interface IFilesService
+public interface IFileSystemService
     : IService<AyaGetRequest, AyaPostRequest, AyaGetResponse, AyaPostResponse>;
 
-public interface IFilesDbService
-    : IFilesService,
+public interface IFileSystemDbService
+    : IFileSystemService,
         IDbService<AyaGetRequest, AyaPostRequest, AyaGetResponse, AyaPostResponse>;
 
-public interface IFilesDbCache : IDbCache<AyaPostRequest, AyaGetResponse>;
+public interface IFileSystemDbCache : IDbCache<AyaPostRequest, AyaGetResponse>;
 
-public class FilesDbService
+public sealed class FileSystemSystemDbService
     : DbService<AyaGetRequest, AyaPostRequest, AyaGetResponse, AyaPostResponse>,
-        IFilesDbService,
-        IFilesDbCache
+        IFileSystemDbService,
+        IFileSystemDbCache
 {
     private readonly GaiaValues _gaiaValues;
     private readonly IFactory<DbServiceOptions> _factoryOptions;
 
-    public FilesDbService(
+    public FileSystemSystemDbService(
         IDbConnectionFactory factory,
         GaiaValues gaiaValues,
         IFactory<DbServiceOptions> factoryOptions

@@ -25,8 +25,8 @@ foreach (var (key, value) in AyaMigration.Migrations)
 await WebApplication
     .CreateBuilder(args)
     .CreateAndRunZeusApp<
-        IFilesService,
-        FilesDbService,
+        IFileSystemService,
+        FileSystemSystemDbService,
         AyaGetRequest,
         AyaPostRequest,
         AyaGetResponse,
