@@ -22,7 +22,7 @@ public interface IFileSystemDbService
 
 public interface IFileSystemDbCache : IDbCache<AyaPostRequest, AyaGetResponse>;
 
-public sealed class FileSystemSystemDbService
+public sealed class FileSystemDbService
     : DbService<AyaGetRequest, AyaPostRequest, AyaGetResponse, AyaPostResponse>,
         IFileSystemDbService,
         IFileSystemDbCache
@@ -30,7 +30,7 @@ public sealed class FileSystemSystemDbService
     private readonly GaiaValues _gaiaValues;
     private readonly IFactory<DbServiceOptions> _factoryOptions;
 
-    public FileSystemSystemDbService(
+    public FileSystemDbService(
         IDbConnectionFactory factory,
         GaiaValues gaiaValues,
         IFactory<DbServiceOptions> factoryOptions

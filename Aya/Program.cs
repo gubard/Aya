@@ -26,7 +26,7 @@ await WebApplication
     .CreateBuilder(args)
     .CreateAndRunZeusApp<
         IFileSystemService,
-        FileSystemSystemDbService,
+        FileSystemDbService,
         AyaGetRequest,
         AyaPostRequest,
         AyaGetResponse,
