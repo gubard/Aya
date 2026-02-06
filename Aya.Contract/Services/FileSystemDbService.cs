@@ -27,17 +27,17 @@ public sealed class FileSystemDbService
         IFileSystemDbService,
         IFileSystemDbCache
 {
-    private readonly GaiaValues _gaiaValues;
+    private readonly DbValues _dbValues;
     private readonly IFactory<DbServiceOptions> _factoryOptions;
 
     public FileSystemDbService(
         IDbConnectionFactory factory,
-        GaiaValues gaiaValues,
+        DbValues dbValues,
         IFactory<DbServiceOptions> factoryOptions
     )
         : base(factory, nameof(FileEntity))
     {
-        _gaiaValues = gaiaValues;
+        _dbValues = dbValues;
         _factoryOptions = factoryOptions;
     }
 
@@ -80,7 +80,7 @@ public sealed class FileSystemDbService
         CancellationToken ct
     )
     {
-        var userId = _gaiaValues.UserId.ToString();
+        var userId = _dbValues.UserId.ToString();
         var creates = request.CreateFiles.Select(x => x.ToFileEntity()).ToArray();
         await using var session = await Factory.CreateSessionAsync(ct);
         var isUseEvents = _factoryOptions.Create().IsUseEvents;
@@ -97,7 +97,7 @@ public sealed class FileSystemDbService
 
     public async ValueTask UpdateCore(AyaPostRequest source, CancellationToken ct)
     {
-        var userId = _gaiaValues.UserId.ToString();
+        var userId = _dbValues.UserId.ToString();
         var creates = source.CreateFiles.Select(x => x.ToFileEntity()).ToArray();
         await using var session = await Factory.CreateSessionAsync(ct);
         await session.AddEntitiesAsync(userId, Guid.NewGuid(), false, creates, ct);
