@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Aya.Contract.Helpers;
 using Aya.Contract.Models;
+using Gaia.Helpers;
 using Gaia.Models;
 using Gaia.Services;
 using Nestor.Db.Helpers;
@@ -27,9 +28,6 @@ public sealed class FileSystemDbService
         IFileSystemDbService,
         IFileSystemDbCache
 {
-    private readonly IFactory<DbValues> _dbValuesFactory;
-    private readonly IFactory<DbServiceOptions> _factoryOptions;
-
     public FileSystemDbService(
         IDbConnectionFactory factory,
         IFactory<DbValues> dbValuesFactory,
@@ -49,18 +47,14 @@ public sealed class FileSystemDbService
         return GetCore(request, ct).ConfigureAwait(false);
     }
 
-    private async ValueTask<AyaGetResponse> GetCore(AyaGetRequest request, CancellationToken ct)
+    public ConfiguredValueTaskAwaitable UpdateAsync(AyaPostRequest source, CancellationToken ct)
     {
-        var response = new AyaGetResponse();
-        await using var session = await Factory.CreateSessionAsync(ct);
+        return UpdateCore(source, ct).ConfigureAwait(false);
+    }
 
-        if (request.IsGetFiles)
-        {
-            await using var reader = await session.ExecuteReaderAsync(FilesExt.SelectQuery, ct);
-            response.Files = reader.ReadFiles().Select(x => x.ToFile()).ToArray();
-        }
-
-        return response;
+    public ConfiguredValueTaskAwaitable UpdateAsync(AyaGetResponse source, CancellationToken ct)
+    {
+        return UpdateCore(source, ct).ConfigureAwait(false);
     }
 
     protected override ConfiguredValueTaskAwaitable<AyaPostResponse> ExecuteAsync(
@@ -71,6 +65,26 @@ public sealed class FileSystemDbService
     )
     {
         return PostCore(idempotentId, response, request, ct).ConfigureAwait(false);
+    }
+
+    private readonly IFactory<DbValues> _dbValuesFactory;
+    private readonly IFactory<DbServiceOptions> _factoryOptions;
+
+    private async ValueTask<AyaGetResponse> GetCore(AyaGetRequest request, CancellationToken ct)
+    {
+        var response = new AyaGetResponse();
+        await using var session = await Factory.CreateSessionAsync(ct);
+
+        if (request.IsGetFiles)
+        {
+            await using var reader = await session.ExecuteReaderAsync(FilesExt.SelectQuery, ct);
+
+            response.Files = (await reader.ReadFilesAsync(ct).ToEnumerableAsync())
+                .Select(x => x.ToFile())
+                .ToArray();
+        }
+
+        return response;
     }
 
     private async ValueTask<AyaPostResponse> PostCore(
@@ -91,12 +105,7 @@ public sealed class FileSystemDbService
         return response;
     }
 
-    public ConfiguredValueTaskAwaitable UpdateAsync(AyaPostRequest source, CancellationToken ct)
-    {
-        return UpdateCore(source, ct).ConfigureAwait(false);
-    }
-
-    public async ValueTask UpdateCore(AyaPostRequest source, CancellationToken ct)
+    private async ValueTask UpdateCore(AyaPostRequest source, CancellationToken ct)
     {
         var dbValues = _dbValuesFactory.Create();
         var userId = dbValues.UserId.ToString();
@@ -106,12 +115,7 @@ public sealed class FileSystemDbService
         await session.CommitAsync(ct);
     }
 
-    public ConfiguredValueTaskAwaitable UpdateAsync(AyaGetResponse source, CancellationToken ct)
-    {
-        return UpdateCore(source, ct).ConfigureAwait(false);
-    }
-
-    public async ValueTask UpdateCore(AyaGetResponse source, CancellationToken ct)
+    private async ValueTask UpdateCore(AyaGetResponse source, CancellationToken ct)
     {
         await using var session = await Factory.CreateSessionAsync(ct);
         var entities = source.Files.Select(x => x.ToFileEntity()).ToArray();
