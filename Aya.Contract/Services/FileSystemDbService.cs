@@ -57,7 +57,7 @@ public sealed class FileSystemDbService
         return UpdateCore(source, ct).ConfigureAwait(false);
     }
 
-    protected override ConfiguredValueTaskAwaitable<AyaPostResponse> ExecuteAsync(
+    protected override ConfiguredValueTaskAwaitable ExecuteAsync(
         Guid idempotentId,
         AyaPostResponse response,
         AyaPostRequest request,
@@ -87,7 +87,7 @@ public sealed class FileSystemDbService
         return response;
     }
 
-    private async ValueTask<AyaPostResponse> PostCore(
+    private async ValueTask PostCore(
         Guid idempotentId,
         AyaPostResponse response,
         AyaPostRequest request,
@@ -101,8 +101,6 @@ public sealed class FileSystemDbService
         var isUseEvents = _factoryOptions.Create().IsUseEvents;
         await session.AddEntitiesAsync(userId, idempotentId, isUseEvents, creates, ct);
         await session.CommitAsync(ct);
-
-        return response;
     }
 
     private async ValueTask UpdateCore(AyaPostRequest source, CancellationToken ct)
