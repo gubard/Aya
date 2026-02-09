@@ -1,6 +1,0 @@
-@Aya_HostAddress = http://localhost:5056
-
-GET {{Aya_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
