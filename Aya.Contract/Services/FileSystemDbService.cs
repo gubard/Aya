@@ -127,7 +127,7 @@ public sealed class FileSystemDbService
         var deleteIds = await session.GetGuidAsync(
             new(
                 FilesExt.SelectIdsQuery + $" WHERE Id NOT IN ({ids.ToParameterNames("Id")})",
-                session.ToDbParameters(ids, "Id")
+                ids.ToQueryParameters("Id")
             ),
             ct
         );
@@ -136,14 +136,14 @@ public sealed class FileSystemDbService
 
         var updateQueries = entities
             .Where(x => exists.Contains(x.Id))
-            .Select(x => x.CreateUpdateFilesQuery(session))
+            .Select(x => x.CreateUpdateFilesQuery())
             .ToArray();
 
         var inserts = entities.Where(x => !exists.Contains(x.Id)).ToArray();
 
         if (inserts.Length != 0)
         {
-            await session.ExecuteNonQueryAsync(inserts.CreateInsertQuery(session), ct);
+            await session.ExecuteNonQueryAsync(inserts.CreateInsertQuery(), ct);
         }
 
         foreach (var query in updateQueries)
@@ -153,7 +153,7 @@ public sealed class FileSystemDbService
 
         if (deleteIds.Length != 0)
         {
-            await session.ExecuteNonQueryAsync(deleteIds.CreateDeleteFilesQuery(session), ct);
+            await session.ExecuteNonQueryAsync(deleteIds.CreateDeleteFilesQuery(), ct);
         }
 
         await session.CommitAsync(ct);

@@ -7,7 +7,7 @@ using Zeus.Helpers;
 
 InsertHelper.AddDefaultInsert(
     nameof(FileEntity),
-    (i, s) => new FileEntity[] { new() { Id = i } }.CreateInsertQuery(s)
+    i => new FileEntity[] { new() { Id = i } }.CreateInsertQuery()
 );
 
 var migration = new Dictionary<int, string>();
