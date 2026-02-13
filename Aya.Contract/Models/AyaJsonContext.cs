@@ -10,7 +10,7 @@ namespace Aya.Contract.Models;
 [JsonSerializable(typeof(AyaPostResponse))]
 [JsonSerializable(typeof(AlreadyExistsValidationError))]
 [JsonSerializable(typeof(NotFoundValidationError))]
-public partial class AyaJsonContext : JsonSerializerContext
+public sealed partial class AyaJsonContext : JsonSerializerContext
 {
     public static readonly IJsonTypeInfoResolver Resolver;
 

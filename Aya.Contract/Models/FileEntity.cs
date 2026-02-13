@@ -1,6 +1,6 @@
 ﻿namespace Aya.Contract.Models;
 
-public class FileEntity
+public sealed class FileEntity
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
