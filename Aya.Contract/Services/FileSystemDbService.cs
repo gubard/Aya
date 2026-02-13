@@ -64,7 +64,7 @@ public sealed class FileSystemDbService
         CancellationToken ct
     )
     {
-        return PostCore(idempotentId, response, request, ct).ConfigureAwait(false);
+        return ExecuteCore(idempotentId, response, request, ct).ConfigureAwait(false);
     }
 
     private readonly IFactory<DbValues> _dbValuesFactory;
@@ -87,7 +87,7 @@ public sealed class FileSystemDbService
         return response;
     }
 
-    private async ValueTask PostCore(
+    private async ValueTask ExecuteCore(
         Guid idempotentId,
         AyaPostResponse response,
         AyaPostRequest request,
@@ -100,17 +100,13 @@ public sealed class FileSystemDbService
         await using var session = await Factory.CreateSessionAsync(ct);
         var isUseEvents = _factoryOptions.Create().IsUseEvents;
         await session.AddEntitiesAsync(userId, idempotentId, isUseEvents, creates, ct);
+        await session.DeleteEntitiesAsync(userId, idempotentId, isUseEvents, request.DeleteIds, ct);
         await session.CommitAsync(ct);
     }
 
     private async ValueTask UpdateCore(AyaPostRequest source, CancellationToken ct)
     {
-        var dbValues = _dbValuesFactory.Create();
-        var userId = dbValues.UserId.ToString();
-        var creates = source.CreateFiles.Select(x => x.ToFileEntity()).ToArray();
-        await using var session = await Factory.CreateSessionAsync(ct);
-        await session.AddEntitiesAsync(userId, Guid.NewGuid(), false, creates, ct);
-        await session.CommitAsync(ct);
+        await PostAsync(Guid.NewGuid(), source, ct);
     }
 
     private async ValueTask UpdateCore(AyaGetResponse source, CancellationToken ct)
