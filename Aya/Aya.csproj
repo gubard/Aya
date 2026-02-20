@@ -11,8 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Nestor\Nestor.Db\Nestor.Db.csproj" />
     <ProjectReference Include="..\..\Zeus\Zeus\Zeus.csproj" />
-    <ProjectReference Include="..\Aya.Contract\Aya.Contract.csproj" />
+    <ProjectReference Include="..\Aya.Db\Aya.Db.csproj" />
   </ItemGroup>
 </Project>
