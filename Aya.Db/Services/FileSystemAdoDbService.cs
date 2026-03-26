@@ -11,12 +11,12 @@ using Nestor.Db.Services;
 
 namespace Aya.Db.Services;
 
-public sealed class FileSystemDbService
-    : DbService<AyaGetRequest, AyaPostRequest, AyaGetResponse, AyaPostResponse>,
+public sealed class FileSystemAdoDbService
+    : AdoDbService<AyaGetRequest, AyaPostRequest, AyaGetResponse, AyaPostResponse>,
         IFileSystemDbService,
         IFileSystemDbCache
 {
-    public FileSystemDbService(
+    public FileSystemAdoDbService(
         IDbConnectionFactory factory,
         IFactory<DbValues> dbValuesFactory,
         IFactory<DbServiceOptions> factoryOptions

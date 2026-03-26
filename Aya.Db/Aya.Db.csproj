@@ -6,6 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Nestor\Nestor.Db.LiteDb\Nestor.Db.LiteDb.csproj" />
     <ProjectReference Include="..\Aya.Contract\Aya.Contract.csproj" />
+    <ProjectReference
+      Include="..\..\Nestor\Nestor.SourceGenerator\Nestor.SourceGenerator.csproj"
+      ReferenceOutputAssembly="false"
+      OutputItemType="Analyzer"
+    />
   </ItemGroup>
 </Project>
