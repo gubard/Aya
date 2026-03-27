@@ -2,7 +2,6 @@ using System.Runtime.CompilerServices;
 using Aya.Contract.Helpers;
 using Aya.Contract.Models;
 using Aya.Contract.Services;
-using Gaia.Helpers;
 using Gaia.Models;
 using Gaia.Services;
 using Nestor.Db.LiteDb.Services;
@@ -32,16 +31,7 @@ public sealed class FileSystemLiteDbService
         CancellationToken ct
     )
     {
-        var response = new AyaGetResponse();
-        using var database = Factory.Create();
-        var collection = database.GetFileEntityCollection();
-
-        if (request.IsGetFiles)
-        {
-            response.Files = collection.FindAll().Select(x => x.ToFileEntity().ToFile()).ToArray();
-        }
-
-        return TaskHelper.FromResult(response);
+        return GetCore(request, ct).ConfigureAwait(false);
     }
 
     public ConfiguredValueTaskAwaitable UpdateAsync(AyaPostRequest source, CancellationToken ct)
@@ -51,9 +41,7 @@ public sealed class FileSystemLiteDbService
 
     public ConfiguredValueTaskAwaitable UpdateAsync(AyaGetResponse source, CancellationToken ct)
     {
-        Update(source, ct);
-
-        return TaskHelper.ConfiguredCompletedTask;
+        return UpdateCore(source, ct).ConfigureAwait(false);
     }
 
     protected override ConfiguredValueTaskAwaitable ExecuteAsync(
@@ -63,27 +51,30 @@ public sealed class FileSystemLiteDbService
         CancellationToken ct
     )
     {
-        var dbValues = _dbValuesFactory.Create();
-        var userId = dbValues.UserId.ToString();
-        var creates = request.CreateFiles.Select(x => x.ToFileEntity()).ToArray();
-        using var database = Factory.Create();
-        var isUseEvents = _factoryOptions.Create().IsUseEvents;
-        database.AddEntities(userId, idempotentId, isUseEvents, creates);
-        database.DeleteEntities(userId, idempotentId, isUseEvents, request.DeleteIds);
-        database.SaveChanges();
-
-        return TaskHelper.ConfiguredCompletedTask;
+        return ExecuteCore(idempotentId, response, request, ct).ConfigureAwait(false);
     }
 
     private readonly IFactory<DbValues> _dbValuesFactory;
     private readonly IFactory<DbServiceOptions> _factoryOptions;
 
-    private async ValueTask UpdateCore(AyaPostRequest source, CancellationToken ct)
+    private async ValueTask ExecuteCore(
+        Guid idempotentId,
+        AyaPostResponse response,
+        AyaPostRequest request,
+        CancellationToken ct
+    )
     {
-        await ExecuteAsync(Guid.NewGuid(), new(), source, ct);
+        var dbValues = _dbValuesFactory.Create();
+        var userId = dbValues.UserId.ToString();
+        var creates = request.CreateFiles.Select(x => x.ToFileEntity()).ToArray();
+        using var database = await Factory.CreateAsync(ct);
+        var isUseEvents = _factoryOptions.Create().IsUseEvents;
+        database.AddEntities(userId, idempotentId, isUseEvents, creates);
+        database.DeleteEntities(userId, idempotentId, isUseEvents, request.DeleteIds);
+        await database.SaveChangesAsync(ct);
     }
 
-    private void Update(AyaGetResponse source, CancellationToken ct)
+    private async ValueTask UpdateCore(AyaGetResponse source, CancellationToken ct)
     {
         var entities = source.Files.Select(x => x.ToFileEntity()).ToArray();
         var ids = entities.Select(x => x.Id).ToArray();
@@ -93,7 +84,7 @@ public sealed class FileSystemLiteDbService
             return;
         }
 
-        using var database = Factory.Create();
+        using var database = await Factory.CreateAsync(ct);
         var collection = database.GetFileEntityCollection();
 
         var exists = entities
@@ -131,6 +122,25 @@ public sealed class FileSystemLiteDbService
             collection.Delete(Query.In("_id", deleteIds));
         }
 
-        database.SaveChanges();
+        await database.SaveChangesAsync(ct);
+    }
+
+    private async ValueTask<AyaGetResponse> GetCore(AyaGetRequest request, CancellationToken ct)
+    {
+        var response = new AyaGetResponse();
+        using var database = await Factory.CreateAsync(ct);
+        var collection = database.GetFileEntityCollection();
+
+        if (request.IsGetFiles)
+        {
+            response.Files = collection.FindAll().Select(x => x.ToFileEntity().ToFile()).ToArray();
+        }
+
+        return response;
+    }
+
+    private async ValueTask UpdateCore(AyaPostRequest source, CancellationToken ct)
+    {
+        await ExecuteAsync(Guid.NewGuid(), new(), source, ct);
     }
 }
