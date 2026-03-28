@@ -67,11 +67,17 @@ public sealed class FileSystemLiteDbService
         var dbValues = _dbValuesFactory.Create();
         var userId = dbValues.UserId.ToString();
         var creates = request.CreateFiles.Select(x => x.ToFileEntity()).ToArray();
-        using var database = await Factory.CreateAsync(ct);
         var isUseEvents = _factoryOptions.Create().IsUseEvents;
-        database.AddEntities(userId, idempotentId, isUseEvents, creates);
-        database.DeleteEntities(userId, idempotentId, isUseEvents, request.DeleteIds);
-        await database.SaveChangesAsync(ct);
+        var database = await Factory.CreateAsync(ct);
+
+        await database.ExecuteAsync(
+            db =>
+            {
+                db.AddEntities(userId, idempotentId, isUseEvents, creates);
+                db.DeleteEntities(userId, idempotentId, isUseEvents, request.DeleteIds);
+            },
+            ct
+        );
     }
 
     private async ValueTask UpdateCore(AyaGetResponse source, CancellationToken ct)
@@ -84,59 +90,74 @@ public sealed class FileSystemLiteDbService
             return;
         }
 
-        using var database = await Factory.CreateAsync(ct);
-        var collection = database.GetFileEntityCollection();
+        var database = await Factory.CreateAsync(ct);
 
-        var exists = entities
-            .Where(x => collection.Exists(Query.EQ("_id", x.Id)))
-            .Select(x => x.Id)
-            .ToArray();
+        await database.ExecuteAsync(
+            db =>
+            {
+                var collection = db.GetFileEntityCollection();
 
-        var deleteIds = collection
-            .Find(Query.Not(Query.In("_id", ids.Select(x => new BsonValue(x)))))
-            .Select(x => x["_id"])
-            .ToArray();
+                var exists = entities
+                    .Where(x => collection.Exists(Query.EQ("_id", x.Id)))
+                    .Select(x => x.Id)
+                    .ToArray();
 
-        var updates = entities
-            .Where(x => exists.Contains(x.Id))
-            .Select(x => x.ToBsonDocument())
-            .ToArray();
+                var deleteIds = collection
+                    .Find(Query.Not(Query.In("_id", ids.Select(x => new BsonValue(x)))))
+                    .Select(x => x["_id"])
+                    .ToArray();
 
-        var inserts = entities
-            .Where(x => !exists.Contains(x.Id))
-            .Select(x => x.ToBsonDocument())
-            .ToArray();
+                var updates = entities
+                    .Where(x => exists.Contains(x.Id))
+                    .Select(x => x.ToBsonDocument())
+                    .ToArray();
 
-        if (inserts.Length != 0)
-        {
-            collection.Insert(inserts);
-        }
+                var inserts = entities
+                    .Where(x => !exists.Contains(x.Id))
+                    .Select(x => x.ToBsonDocument())
+                    .ToArray();
 
-        if (updates.Length != 0)
-        {
-            collection.Update(updates);
-        }
+                if (inserts.Length != 0)
+                {
+                    collection.Insert(inserts);
+                }
 
-        if (deleteIds.Length != 0)
-        {
-            collection.Delete(Query.In("_id", deleteIds));
-        }
+                if (updates.Length != 0)
+                {
+                    collection.Update(updates);
+                }
 
-        await database.SaveChangesAsync(ct);
+                if (deleteIds.Length != 0)
+                {
+                    collection.Delete(Query.In("_id", deleteIds));
+                }
+            },
+            ct
+        );
     }
 
     private async ValueTask<AyaGetResponse> GetCore(AyaGetRequest request, CancellationToken ct)
     {
         var response = new AyaGetResponse();
-        using var database = await Factory.CreateAsync(ct);
-        var collection = database.GetFileEntityCollection();
+        var database = await Factory.CreateAsync(ct);
 
-        if (request.IsGetFiles)
-        {
-            response.Files = collection.FindAll().Select(x => x.ToFileEntity().ToFile()).ToArray();
-        }
+        return await database.ExecuteAsync(
+            db =>
+            {
+                var collection = db.GetFileEntityCollection();
 
-        return response;
+                if (request.IsGetFiles)
+                {
+                    response.Files = collection
+                        .FindAll()
+                        .Select(x => x.ToFileEntity().ToFile())
+                        .ToArray();
+                }
+
+                return response;
+            },
+            ct
+        );
     }
 
     private async ValueTask UpdateCore(AyaPostRequest source, CancellationToken ct)
